@@ -32,7 +32,9 @@ const createTag = async (req, res) => {
   try {
     const { user_id } = req.body;
     const tag = await Tag.create(req.body);
+
     if (tag) {
+      await tag.save();
       const userTag = await User.findByIdAndUpdate(user_id, {
         $push: { tags: tag._id },
       });

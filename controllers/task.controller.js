@@ -63,11 +63,24 @@ const deleteTask = async (req, res) => {
   try {
     const { id } = req.params;
     const task = await Task.findById(id);
+    const taskTag = await Tag.findById(task.tag_id.toString(), "tasks").exec();
+    const userTask = await User.findById(
+      task.user_id.toString(),
+      "tasks"
+    ).exec();
+
+    const newTaskTag = taskTag.tasks.filter((i) => i.toString() !== id);
+    const newUserTask = userTask.tasks.filter((i) => i.toString() !== id);
+    await Tag.findByIdAndUpdate(task.tag_id.toString(), { tasks: newTaskTag });
+    await User.findByIdAndUpdate(task.user_id.toString(), {
+      tasks: newUserTask,
+    });
+
     if (!task) {
       return res.status(401).json({ message: "Task doesn't exists" });
     }
     await Task.findByIdAndDelete(id);
-    res.status(200).json({ message: "Task updated successfully" });
+    res.status(200).json({ message: "Task deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
