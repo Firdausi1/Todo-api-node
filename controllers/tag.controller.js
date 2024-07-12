@@ -49,12 +49,13 @@ const updateTag = async (req, res) => {
     const { id } = req.params;
     const tag = await Tag.findByIdAndUpdate(id, req.body);
     const task = await Task.find({});
-    task.forEach((item) => {
+    task.forEach(async (item) => {
       if (item.tag_id.toString() === id) {
-        item.tag = req.body.title;
+        await Task.findByIdAndUpdate(item._id.toString(), {
+          tag: req.body.title,
+        });
       }
     });
-    console.log(task);
     if (!tag) {
       return res.status(401).json({ message: "Tag doesn't exists" });
     }
