@@ -1,15 +1,15 @@
 const express = require("express");
 const {
-  getTags,
-  getTag,
+  getUserTags,
   updateTag,
   deleteTag,
   createTag,
+  getTagTodos,
 } = require("../controllers/tag.controller");
 const router = express.Router();
 
-router.get("/?user_id", getTags);
-router.get("/:id", getTag);
+router.get("/tasks/:tag_id?", getTagTodos);
+router.get("/:user_id?", getUserTags);
 router.post("/", createTag);
 router.put("/:id", updateTag);
 router.delete("/:id", deleteTag);
