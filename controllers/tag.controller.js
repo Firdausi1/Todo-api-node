@@ -6,22 +6,20 @@ const getUserTags = async (req, res) => {
   try {
     const { user_id } = req.query;
     const user = await User.findById(user_id).populate("tags");
-    if(!user){
-      return res.status(401).json({message: "Invalid user id"})
+    if (!user) {
+      return res.status(401).json({ message: "Invalid user id" });
     }
-    res
-      .status(200)
-      .json(user.tags);
+    res.status(200).json(user.tags);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 const getTagTodos = async (req, res) => {
   try {
-    const {tag_id} = req.query;
+    const { tag_id } = req.query;
     const tag = await Tag.findById(tag_id).populate("tasks");
-    if(!tag){
-      return res.status(401).json({message: "Tag doesn't exists"})
+    if (!tag) {
+      return res.status(401).json({ message: "Tag doesn't exists" });
     }
     res
       .status(200)
@@ -50,6 +48,13 @@ const updateTag = async (req, res) => {
   try {
     const { id } = req.params;
     const tag = await Tag.findByIdAndUpdate(id, req.body);
+    const task = await Task.find({});
+    task.forEach((item) => {
+      if (item.tag_id.toString() === id) {
+        item.tag = req.body.title;
+      }
+    });
+    console.log(task);
     if (!tag) {
       return res.status(401).json({ message: "Tag doesn't exists" });
     }
