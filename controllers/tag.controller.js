@@ -74,11 +74,15 @@ const deleteTag = async (req, res) => {
       return res.status(401).json({ message: "Tag doesn't exists" });
     }
     let taskIds = tag.tasks.map((t) => t._id);
-
     await Task.deleteMany({
       _id: {
         $in: taskIds,
       },
+    });
+    const userTag = await User.findById(tag.user_id.toString(), "tags").exec();
+    const newUserTag = userTag.tags.filter((i) => i.toString() !== id);
+    await User.findByIdAndUpdate(tag.user_id.toString(), {
+      tags: newUserTag,
     });
     res.status(200).json({ message: "Tag deleted successfully" });
   } catch (err) {

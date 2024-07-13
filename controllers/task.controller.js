@@ -30,6 +30,7 @@ const createTask = async (req, res) => {
       content,
       user_id: tag.user_id,
     });
+    await task.save();
     await Tag.findByIdAndUpdate(tag_id, {
       $push: { tasks: task._id },
     });
@@ -63,6 +64,10 @@ const deleteTask = async (req, res) => {
   try {
     const { id } = req.params;
     const task = await Task.findById(id);
+
+    if (!task) {
+      return res.status(401).json({ message: "Task doesn't exists" });
+    }
     const taskTag = await Tag.findById(task.tag_id.toString(), "tasks").exec();
     const userTask = await User.findById(
       task.user_id.toString(),
@@ -75,10 +80,6 @@ const deleteTask = async (req, res) => {
     await User.findByIdAndUpdate(task.user_id.toString(), {
       tasks: newUserTask,
     });
-
-    if (!task) {
-      return res.status(401).json({ message: "Task doesn't exists" });
-    }
     await Task.findByIdAndDelete(id);
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (err) {
